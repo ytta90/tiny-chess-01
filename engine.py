@@ -27,7 +27,7 @@ NM = [0, 0]            # non-pawn piece counts per side
 BC = [0, 0]            # bishop counts per side
 KEY = 0                # zobrist key
 N = 0                  # nodes searched this move
-BDG = 120000           # node budget per move (tuned by benchmark)
+BDG = 150000           # node budget per move (tuned by benchmark)
 TT = {}                # transposition table: key -> (depth, flag, value, move)
 KILL = [[0, 0] for _ in range(256)]   # killer moves per ply
 HIST = [[0] * 128 for _ in range(128)]  # history [from][to]
@@ -88,14 +88,6 @@ def ev():
             if not (q & 0x88) and B[q] == (1 if sd == 0 else -1):
                 sh += 1
         s += (sh - 2) * 25 if sd == 0 else -(sh - 2) * 25
-    # passed pawns: no enemy pawn on the 3 squares directly ahead
-    for sd in (0, 1):
-        for sq in P[sd]:
-            if abs(B[sq]) == 1:
-                dd = 16 if sd == 0 else -16
-                if all((sq + o) & 0x88 or B[sq + o] != -B[sq] for o in (dd - 1, dd, dd + 1)):
-                    rr = sq >> 4 if sd == 0 else 7 - (sq >> 4)
-                    s += (12 + rr * 8) * (1 if sd == 0 else -1)
     sc = s if S == 0 else -s
     return sc + 10  # tempo
 
